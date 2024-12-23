@@ -9,10 +9,6 @@ import (
 
 func (b *Buffer) WriteObjectAny(value any) (err error) {
 	switch val := value.(type) {
-	case any:
-		return b.WriteU0()
-	case nil:
-		return b.WriteU0()
 	case uint8:
 		return b.WriteU8(val)
 	case uint16:
@@ -21,6 +17,10 @@ func (b *Buffer) WriteObjectAny(value any) (err error) {
 		return b.WriteU32(val)
 	case uint64:
 		return b.WriteU64(val)
+	case int:
+		return b.WriteU64(uint64(val))
+	case uint:
+		return b.WriteU64(uint64(val))
 	default:
 		return fmt.Errorf("unimplemented object type: %v", reflect.TypeOf(value))
 	}
@@ -183,6 +183,27 @@ func (b *Buffer) WriteListClose() (err error) {
 	}
 
 	err = Check(C.ion_buffer_io_write_list_close(b.inner))
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func BufferWriteList[T any](b *Buffer, value []T) (err error) {
+	err = b.WriteListOpen()
+	if err != nil {
+		return
+	}
+
+	for _, it := range value {
+		err = b.WriteObjectAny(it)
+		if err != nil {
+			return
+		}
+	}
+
+	err = b.WriteListClose()
 	if err != nil {
 		return
 	}
