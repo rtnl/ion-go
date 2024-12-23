@@ -17,11 +17,27 @@ func NewBuffer() (b *Buffer) {
 
 	b.inner = C.ion_buffer_new()
 
-	runtime.SetFinalizer(b, func(it *Buffer) {
-		if it.inner != nil {
-			C.ion_buffer_free(it.inner)
+	runtime.SetFinalizer(b, func(v *Buffer) {
+		if v.inner != nil {
+			C.ion_buffer_free(v.inner)
 		}
 	})
+
+	return
+}
+
+func (b *Buffer) Clone() (other *Buffer) {
+	other = NewBuffer()
+
+	if b == nil {
+		return
+	}
+
+	if b.inner == nil {
+		return
+	}
+
+	other.inner = C.ion_buffer_clone(b.inner)
 
 	return
 }

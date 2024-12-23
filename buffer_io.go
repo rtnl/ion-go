@@ -7,7 +7,7 @@ import (
 	"reflect"
 )
 
-func (b *Buffer) WriteObject(value any) (err error) {
+func (b *Buffer) WriteObjectAny(value any) (err error) {
 	switch val := value.(type) {
 	case any:
 		return b.WriteU0()
@@ -21,6 +21,23 @@ func (b *Buffer) WriteObject(value any) (err error) {
 		return b.WriteU32(val)
 	case uint64:
 		return b.WriteU64(val)
+	default:
+		return fmt.Errorf("unimplemented object type: %v", reflect.TypeOf(value))
+	}
+}
+
+func (b *Buffer) WriteObject(kind ObjectKind, value any) (err error) {
+	switch kind {
+	case U0:
+		return b.WriteU0()
+	case U8:
+		return b.WriteU8(value.(uint8))
+	case U16:
+		return b.WriteU16(value.(uint16))
+	case U32:
+		return b.WriteU32(value.(uint32))
+	case U64:
+		return b.WriteU64(value.(uint64))
 	default:
 		return fmt.Errorf("unimplemented object type: %v", reflect.TypeOf(value))
 	}
@@ -117,6 +134,27 @@ func (b *Buffer) WriteArrayClose() (err error) {
 	}
 
 	err = Check(C.ion_buffer_io_write_arr_close(b.inner))
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func BufferWriteArray[T any](b *Buffer, kind ObjectKind, value []T) (err error) {
+	err = b.WriteArrayOpen(kind)
+	if err != nil {
+		return
+	}
+
+	for _, it := range value {
+		err = b.WriteObject(kind, it)
+		if err != nil {
+			return
+		}
+	}
+
+	err = b.WriteArrayClose()
 	if err != nil {
 		return
 	}
