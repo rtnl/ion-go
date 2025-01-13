@@ -45,6 +45,7 @@ func (b *Buffer) Clone() (other *Buffer) {
 func (b *Buffer) Consume() (result []byte) {
 	var (
 		size C.size_t
+		raw  *C.uint8_t
 		arr  []C.uchar
 	)
 
@@ -52,8 +53,9 @@ func (b *Buffer) Consume() (result []byte) {
 		return nil
 	}
 
-	size = 0
-	arr = unsafe.Slice(C.ion_buffer_consume(b.inner, &size), int(size))
+	raw = C.ion_buffer_consume(b.inner, &size)
+	arr = unsafe.Slice(raw, int(size))
+
 	result = make([]byte, size)
 	for x, it := range arr {
 		result[x] = byte(it)
