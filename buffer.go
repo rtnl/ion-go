@@ -94,16 +94,24 @@ func (b *Buffer) Write(data []byte) (n int, err error) {
 }
 
 func (b *Buffer) Read(data []byte) (n int, err error) {
+	var (
+		size int
+		curr C.size_t
+	)
+
 	if b.inner == nil {
 		err = fmt.Errorf("buffer is null")
 		return
 	}
 
-	err = Check(C.ion_buffer_read(b.inner, unsafe.Pointer(unsafe.SliceData(data)), C.size_t(len(data))))
+	curr = b.inner.body.curr
+	size = min(int(curr), len(data))
+
+	err = Check(C.ion_buffer_read(b.inner, unsafe.Pointer(unsafe.SliceData(data)), C.size_t(size)))
 	if err != nil {
 		return
 	}
 
-	n = len(data)
+	n = size
 	return
 }
