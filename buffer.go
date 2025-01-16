@@ -117,7 +117,7 @@ func (b *Buffer) Read(data []byte) (n int, err error) {
 		return
 	}
 
-	curr = b.inner.body.curr_w
+	curr = max(b.inner.body.curr_w-b.inner.body.curr_r, 0)
 	size = min(int(curr), len(data))
 
 	err = Check(C.ion_buffer_read(b.inner, unsafe.Pointer(unsafe.SliceData(data)), C.size_t(size)))
