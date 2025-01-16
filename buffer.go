@@ -42,6 +42,15 @@ func (b *Buffer) Clone() (other *Buffer) {
 	return
 }
 
+func (b *Buffer) Reduce() (err error) {
+	err = Check(C.ion_buffer_reduce(b.inner))
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 func (b *Buffer) Consume() (result []byte) {
 	var (
 		size C.size_t
