@@ -65,12 +65,25 @@ func (b *Buffer) Consume() (result []byte) {
 	return
 }
 
-func (b *Buffer) Seek(index uint8) (err error) {
+func (b *Buffer) SeekRead(index uint8) (err error) {
 	if b.inner == nil {
 		return
 	}
 
-	err = Check(C.ion_buffer_seek(b.inner, C.uint8_t(index)))
+	err = Check(C.ion_buffer_seek_read(b.inner, C.uint8_t(index)))
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (b *Buffer) SeekWrite(index uint8) (err error) {
+	if b.inner == nil {
+		return
+	}
+
+	err = Check(C.ion_buffer_seek_write(b.inner, C.uint8_t(index)))
 	if err != nil {
 		return
 	}
@@ -104,7 +117,7 @@ func (b *Buffer) Read(data []byte) (n int, err error) {
 		return
 	}
 
-	curr = b.inner.body.curr
+	curr = b.inner.body.curr_w
 	size = min(int(curr), len(data))
 
 	err = Check(C.ion_buffer_read(b.inner, unsafe.Pointer(unsafe.SliceData(data)), C.size_t(size)))
