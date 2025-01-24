@@ -126,10 +126,10 @@ func (b *Buffer) Read(data []byte) (n int, err error) {
 		return
 	}
 
-	curr = max(b.inner.body.curr_w-b.inner.body.curr_r, 0)
-	size = min(int(curr), len(data))
+	curr = b.inner.body.curr_r
+	size = min(len(data), int(b.inner.body.size-curr)) / int(b.inner.body.unit)
 
-	err = Check(C.ion_buffer_read(b.inner, unsafe.Pointer(unsafe.SliceData(data)), C.size_t(size)))
+	err = Check(C.vector_read(b.inner.body, unsafe.Pointer(unsafe.SliceData(data)), C.size_t(size)))
 	if err != nil {
 		return
 	}
