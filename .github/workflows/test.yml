@@ -14,6 +14,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: install c libion
+        run: sudo ./build/install_libion.sh
+
       - uses: actions/setup-go@v5
         with:
           go-version: '1.23.5'
