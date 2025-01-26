@@ -74,12 +74,12 @@ func (b *Buffer) Consume() (result []byte) {
 	return
 }
 
-func (b *Buffer) SeekRead(index uint8) (err error) {
+func (b *Buffer) SeekRead(index uint64) (err error) {
 	if b.inner == nil {
 		return
 	}
 
-	err = Check(C.ion_buffer_seek_read(b.inner, C.uint8_t(index)))
+	err = Check(C.ion_buffer_seek_read(b.inner, C.size_t(index)))
 	if err != nil {
 		return
 	}
@@ -87,12 +87,25 @@ func (b *Buffer) SeekRead(index uint8) (err error) {
 	return
 }
 
-func (b *Buffer) SeekWrite(index uint8) (err error) {
+func (b *Buffer) SeekWrite(index uint64) (err error) {
 	if b.inner == nil {
 		return
 	}
 
-	err = Check(C.ion_buffer_seek_write(b.inner, C.uint8_t(index)))
+	err = Check(C.ion_buffer_seek_write(b.inner, C.size_t(index)))
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (b *Buffer) SeekPeek(index uint64) (err error) {
+	if b.inner == nil {
+		return
+	}
+
+	err = Check(C.ion_buffer_seek_peek(b.inner, C.size_t(index)))
 	if err != nil {
 		return
 	}
@@ -127,9 +140,32 @@ func (b *Buffer) Read(data []byte) (n int, err error) {
 	}
 
 	curr = b.inner.body.curr_r
-	size = min(len(data), int(b.inner.body.size-curr)) / int(b.inner.body.unit)
+	size = min(len(data), int(b.inner.body.curr_w-curr)) / int(b.inner.body.unit)
 
-	err = Check(C.vector_read(b.inner.body, unsafe.Pointer(unsafe.SliceData(data)), C.size_t(size)))
+	err = Check(C.ion_buffer_read(b.inner, unsafe.Pointer(unsafe.SliceData(data)), C.size_t(size)))
+	if err != nil {
+		return
+	}
+
+	n = size
+	return
+}
+
+func (b *Buffer) Peek(data []byte) (n int, err error) {
+	var (
+		size int
+		curr C.size_t
+	)
+
+	if b.inner == nil {
+		err = fmt.Errorf("buffer is null")
+		return
+	}
+
+	curr = b.inner.body.curr_p
+	size = min(len(data), int(b.inner.body.curr_w-curr)) / int(b.inner.body.unit)
+
+	err = Check(C.ion_buffer_peek(b.inner, unsafe.Pointer(unsafe.SliceData(data)), C.size_t(size)))
 	if err != nil {
 		return
 	}
