@@ -74,19 +74,6 @@ func (b *Buffer) Consume() (result []byte) {
 	return
 }
 
-func (b *Buffer) SeekRead(index uint64) (err error) {
-	if b.inner == nil {
-		return
-	}
-
-	err = Check(C.ion_buffer_seek_read(b.inner, C.size_t(index)))
-	if err != nil {
-		return
-	}
-
-	return
-}
-
 func (b *Buffer) SeekWrite(index uint64) (err error) {
 	if b.inner == nil {
 		return
@@ -100,12 +87,34 @@ func (b *Buffer) SeekWrite(index uint64) (err error) {
 	return
 }
 
+func (b *Buffer) SeekRead(index uint64) (err error) {
+	if b.inner == nil {
+		return
+	}
+
+	err = Check(C.ion_buffer_seek_read(b.inner, C.size_t(index)))
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 func (b *Buffer) SeekPeek(index uint64) (err error) {
 	if b.inner == nil {
 		return
 	}
 
 	err = Check(C.ion_buffer_seek_peek(b.inner, C.size_t(index)))
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (b *Buffer) SyncPeekRead() (err error) {
+	err = b.SeekRead(uint64(b.inner.body.curr_p))
 	if err != nil {
 		return
 	}
