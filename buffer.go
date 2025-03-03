@@ -74,6 +74,18 @@ func (b *Buffer) Consume() (result []byte) {
 	return
 }
 
+func (b *Buffer) CurrWrite() uint64 {
+	return uint64(b.inner.body.curr_w)
+}
+
+func (b *Buffer) CurrRead() uint64 {
+	return uint64(b.inner.body.curr_r)
+}
+
+func (b *Buffer) CurrPeek() uint64 {
+	return uint64(b.inner.body.curr_p)
+}
+
 func (b *Buffer) SeekWrite(index uint64) (err error) {
 	if b.inner == nil {
 		return
