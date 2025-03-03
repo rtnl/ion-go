@@ -10,12 +10,20 @@ import (
 
 type Buffer struct {
 	inner *C.t_ion_buffer
+
+	stateWrite *BufferState
+	stateRead  *BufferState
+	statePeek  *BufferState
 }
 
 func NewBuffer() (b *Buffer) {
 	b = new(Buffer)
 
 	b.inner = C.ion_buffer_new()
+
+	b.stateWrite = NewBufferState(b.inner.state_w)
+	b.stateRead = NewBufferState(b.inner.state_r)
+	b.statePeek = NewBufferState(b.inner.state_p)
 
 	runtime.SetFinalizer(b, func(v *Buffer) {
 		if v.inner != nil {
@@ -84,6 +92,18 @@ func (b *Buffer) CurrRead() uint64 {
 
 func (b *Buffer) CurrPeek() uint64 {
 	return uint64(b.inner.body.curr_p)
+}
+
+func (b *Buffer) StateWrite() *BufferState {
+	return b.stateWrite
+}
+
+func (b *Buffer) StateRead() *BufferState {
+	return b.stateRead
+}
+
+func (b *Buffer) StatePeek() *BufferState {
+	return b.statePeek
 }
 
 func (b *Buffer) SeekWrite(index uint64) (err error) {
