@@ -82,6 +82,33 @@ func (b *Buffer) Consume() (result []byte) {
 	return
 }
 
+func (b *Buffer) ResetWrite() (err error) {
+	err = Check(C.ion_buffer_reset_write(b.inner))
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (b *Buffer) ResetRead() (err error) {
+	err = Check(C.ion_buffer_reset_read(b.inner))
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (b *Buffer) ResetPeek() (err error) {
+	err = Check(C.ion_buffer_reset_peek(b.inner))
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 func (b *Buffer) CurrWrite() uint64 {
 	return uint64(b.inner.body.curr_w)
 }
