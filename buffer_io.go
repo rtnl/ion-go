@@ -5,6 +5,7 @@ import "C"
 import (
 	"container/list"
 	"fmt"
+	"log/slog"
 	"reflect"
 )
 
@@ -612,6 +613,10 @@ func BufferPeekArray[T any](b *Buffer, kind ObjectKind) (value []T, err error) {
 	)
 
 	valKind, length, err = b.PeekArrayOpen()
+	slog.Debug("peek array open",
+		slog.Any("valKind", valKind),
+		slog.Any("length", length),
+		slog.Any("err", err))
 	if err != nil {
 		return
 	}
@@ -624,6 +629,9 @@ func BufferPeekArray[T any](b *Buffer, kind ObjectKind) (value []T, err error) {
 	value = make([]T, length)
 	for x := range length {
 		valRaw, err = b.PeekObject(kind)
+		slog.Debug("peek array open object",
+			slog.Any("valRaw", valRaw),
+			slog.Any("err", err))
 		if err != nil {
 			return
 		}
