@@ -363,6 +363,15 @@ func (b *Buffer) ReadArrayOpen() (kind ObjectKind, length int, err error) {
 	return
 }
 
+func (b *Buffer) ReadArrayCheck(kind ObjectKind, length int) (err error) {
+	err = Check(C.ion_buffer_io_read_arr_check(b.inner, kind, C.uint8_t(length)))
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 func (b *Buffer) ReadArrayClose() (err error) {
 	if b.inner == nil {
 		err = fmt.Errorf("buffer is nil")
@@ -391,6 +400,11 @@ func BufferReadArray[T any](b *Buffer, kind ObjectKind) (value []T, err error) {
 
 	if valKind != kind {
 		err = fmt.Errorf("inner type does not match: %v %v", kind, valKind)
+		return
+	}
+
+	err = b.ReadArrayCheck(kind, length)
+	if err != nil {
 		return
 	}
 
@@ -591,6 +605,15 @@ func (b *Buffer) PeekArrayOpen() (kind ObjectKind, length int, err error) {
 	return
 }
 
+func (b *Buffer) PeekArrayCheck(kind ObjectKind, length int) (err error) {
+	err = Check(C.ion_buffer_io_peek_arr_check(b.inner, kind, C.uint8_t(length)))
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 func (b *Buffer) PeekArrayClose() (err error) {
 	if b.inner == nil {
 		err = fmt.Errorf("buffer is nil")
@@ -623,6 +646,11 @@ func BufferPeekArray[T any](b *Buffer, kind ObjectKind) (value []T, err error) {
 
 	if valKind != kind {
 		err = fmt.Errorf("inner type does not match: %v %v", kind, valKind)
+		return
+	}
+
+	err = b.PeekArrayCheck(kind, length)
+	if err != nil {
 		return
 	}
 
