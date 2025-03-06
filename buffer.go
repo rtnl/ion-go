@@ -78,6 +78,8 @@ func (b *Buffer) Consume() (result []byte) {
 		result[x] = byte(it)
 	}
 
+	C.free(unsafe.Pointer(raw))
+
 	b.inner = nil
 	return
 }
